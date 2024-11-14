@@ -20,7 +20,7 @@ jobs:
         uses: ./
         with:
           url: ${{ secrets.CONJUR_URL }}
-          account: cyberarkdemo
+          account: conjur
           authn_id: ${{ secrets.CONJUR_SERVICE_ID }}
           secrets: data/vault/dev-demo-cred/appuser_db/username|sql_username;data/vault/dev-demo-cred/appuser_db/password|sql_password
       - name: Check SQL_USERNAME Outside Docker Container for Secret Masking
