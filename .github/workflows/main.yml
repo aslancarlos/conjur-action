@@ -22,6 +22,10 @@ jobs:
       id-token: 'write'
       contents: 'read'
 
+    outputs:
+      sql_username: ${{ steps.conjur-secrets.outputs.sql_username }}
+      sql_password: ${{ steps.conjur-secrets.outputs.sql_password }}
+
     steps:
       - uses: actions/checkout@v1
       
@@ -31,19 +35,24 @@ jobs:
         with:
           url: https://latamlab.secretsmgr.cyberark.cloud/api
           account: conjur
-          authn_id:  github
+          authn_id: github
           secrets: data/vault/dev-demo-cred/appuser_db/username|sql_username;data/vault/dev-demo-cred/appuser_db/password|sql_password
-     
+          
+      - name: Set sql_username and sql_password as Outputs
+        run: |
+          echo "sql_username=${{ secrets.sql_username }}" >> $GITHUB_ENV
+          echo "sql_password=${{ secrets.sql_password }}" >> $GITHUB_ENV
+
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
 
   check_mysql:
     runs-on: self-hosted
-    needs: authn-jwt  # Depende do job authn-jwt para ter acesso aos outputs
+    needs: authn-jwt
 
     steps:
       - name: Check MySQL Connection
         run: |
           echo "Verificando conexão com o banco de dados..."
-          echo "Usando usuário: ${{ jobs.authn_jwt.secrets.sql_username }}"
-          mysql -h 10.78.10.171 -u "${{ jobs.authn_jwt.secrets.sql_username }}"" -p"${{ jobs.authn_jwt.secrets.sql_password }}"" -e "SHOW PROCESSLIST;" || exit 1
+          echo "Usando usuário: ${{ needs.authn-jwt.outputs.sql_username }}"
+          mysql -h 10.78.10.171 -u "${{ needs.authn-jwt.outputs.sql_username }}" -p"${{ needs.authn-jwt.outputs.sql_password }}" -e "SHOW PROCESSLIST;" || exit 1
