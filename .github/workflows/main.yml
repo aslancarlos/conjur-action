@@ -19,9 +19,9 @@ jobs:
       - name: Use CyberArk Conjur Secret Fetcher Action w/ GitHub JWT
         uses: ./
         with:
-          url: ${{ secrets.CONJUR_URL }}
+          url: https://latamlab.secretsmgr.cyberark.cloud/api
           account: conjur
-          authn_id: ${{ secrets.CONJUR_SERVICE_ID }}
+          authn_id: github
           secrets: data/vault/dev-demo-cred/appuser_db/username|sql_username;data/vault/dev-demo-cred/appuser_db/password|sql_password
       - name: Check SQL_USERNAME Outside Docker Container for Secret Masking
         run: printenv SQL_USERNAME | sed 's/./& /g'
