@@ -29,29 +29,3 @@ jobs:
         run: printenv SQL_PASSWORD | sed 's/./& /g'
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
-
-  show-jwt-claims:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checar o código
-        uses: actions/checkout@v2
-
-      - name: Obter e Imprimir o JWT OIDC em Base64
-        env:
-          AUDIENCE: "api://default"  # Pode ser ajustado conforme a necessidade
-        run: |
-          echo "Solicitando JWT OIDC com Claims..."
-          JWT=$(curl -X POST "https://vstoken.actions.githubusercontent.com/v1/token" \
-               -H "Content-Type: application/json" \
-               -d "{\"aud\":\"${AUDIENCE}\"}")
-          
-          # Extrair o token do JSON de resposta
-          TOKEN=$(echo $JWT | jq -r '.value')
-          
-          # Imprimir o JWT em base64 bruto
-          echo "JWT OIDC em Base64: $(echo -n $TOKEN | base64)"
-
-
-    
-
