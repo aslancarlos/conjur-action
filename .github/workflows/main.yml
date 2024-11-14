@@ -37,13 +37,20 @@ jobs:
       - name: Checar o código
         uses: actions/checkout@v2
 
-      - name: Obter o JWT em Base64
+      - name: Obter e Imprimir o JWT OIDC em Base64
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUDIENCE: "api://default"  # Pode ser ajustado conforme a necessidade
         run: |
-          echo "Obtendo o JWT em Base64..."
-          JWT=$(curl -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com)
-          echo "JWT em Base64: $(echo -n $JWT | base64)" 
+          echo "Solicitando JWT OIDC com Claims..."
+          JWT=$(curl -X POST "https://vstoken.actions.githubusercontent.com/v1/token" \
+               -H "Content-Type: application/json" \
+               -d "{\"aud\":\"${AUDIENCE}\"}")
+          
+          # Extrair o token do JSON de resposta
+          TOKEN=$(echo $JWT | jq -r '.value')
+          
+          # Imprimir o JWT em base64 bruto
+          echo "JWT OIDC em Base64: $(echo -n $TOKEN | base64)"
 
 
     
