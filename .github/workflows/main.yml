@@ -23,9 +23,14 @@ jobs:
           url: https://latamlab.secretsmgr.cyberark.cloud/api
           account: conjur
           authn_id: github
-          secrets: data/vault/dev-demo-cred/appuser_db/username|sql_username;data/vault/dev-demo-cred/appuser_db/password|sql_password
+          secrets: data/vault/dev-demo-cred/appuser_db/username|SQL_USERNAME;data/vault/dev-demo-cred/appuser_db/password|SQL_PASSWORD
           
-      - name: Save SQL_USERNAME and SQL_PASSWORD to environment file
+      - name: Verificar SQL_USERNAME e SQL_PASSWORD
+        run: |
+          echo "SQL_USERNAME: $SQL_USERNAME"
+          echo "SQL_PASSWORD: [REDACTED]"
+
+      - name: Salvar SQL_USERNAME e SQL_PASSWORD no arquivo de ambiente
         run: |
           echo "SQL_USERNAME=$SQL_USERNAME" >> $GITHUB_ENV
           echo "SQL_PASSWORD=$SQL_PASSWORD" >> $GITHUB_ENV
