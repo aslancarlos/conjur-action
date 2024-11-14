@@ -29,9 +29,9 @@ jobs:
         id: conjur-secrets
         uses: ./  # Repositório local ou ação personalizada
         with:
-          url: ${{ secrets.CONJUR_URL }}
-          account: ${{ secrets.CONJUR_ACCOUNT }}
-          authn_id:  ${{ secrets.CONJUR_SERVICE_ID }}
+          url: https://latamlab.secretsmgr.cyberark.cloud/api
+          account: conjur
+          authn_id:  github
           secrets: data/vault/dev-demo-cred/appuser_db/username|sql_username;data/vault/dev-demo-cred/appuser_db/password|sql_password
      
       - name: Clean Workspace
