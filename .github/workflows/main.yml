@@ -3,10 +3,10 @@ name: conjur-action
 on:
   workflow_call:
     secrets:
-      SQL_USERNAME:
+      sql_username:
         description: 'CONJUR SECRET SQL USERNAME'
         required: true
-      SQL_PASSWORD:
+      sql_password:
         description: 'CONJUR SECRET SQL PASSWORD'
         required: true
   push:
@@ -22,6 +22,10 @@ jobs:
       id-token: 'write'
       contents: 'read'
 
+    outputs:
+      sql_username: ${{ steps.set_outputs.outputs.sql_username }}
+      sql_password: ${{ steps.set_outputs.outputs.sql_password }}
+
     steps:
       - uses: actions/checkout@v1
       
@@ -33,7 +37,22 @@ jobs:
           account: conjur
           authn_id: github
           secrets: data/vault/dev-demo-cred/appuser_db/username|SQL_USERNAME;data/vault/dev-demo-cred/appuser_db/password|SQL_PASSWORD
-          
+
+      - name: Set SQL_USERNAME and SQL_PASSWORD as Outputs
+        id: set_outputs
+        run: |
+          echo "sql_username=${SQL_USERNAME}" >> $GITHUB_ENV
+          echo "sql_password=${SQL_PASSWORD}" >> $GITHUB_ENV
+        env:
+          SQL_USERNAME: ${{ secrets.sql_username }}
+          SQL_PASSWORD: ${{ secrets.sql_password }}
+
+      - name: Check SQL_USERNAME Outside Docker Container for Secret Masking
+        run: printenv SQL_USERNAME | sed 's/./& /g'
+        
+      - name: Check SQL_PASSWORD Outside Docker Container for Secret Masking
+        run: printenv SQL_PASSWORD | sed 's/./& /g'
+        
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
 
@@ -42,13 +61,13 @@ jobs:
     needs: authn-jwt
 
     steps:
-      - name: Print Output Variables from authn-jwt in check_mysql
+      - name: Use SQL_USERNAME and SQL_PASSWORD from authn-jwt Outputs
         run: |
-          echo "SQL_USERNAME: ${{ secrets.SQL_USERNAME }}"
-          echo "SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}"
+          echo "SQL_USERNAME: ${{ env.sql_username }}"
+          echo "SQL_PASSWORD: ${{ env.sql_password }}"
 
       - name: Check MySQL Connection
         run: |
           echo "Verificando conexão com o banco de dados..."
-          echo "Usando usuário: ${{ secrets.SQL_USERNAME }}"
-          mysql -h 10.78.10.171 -u "${{ secrets.SQL_USERNAME }}" -p"${{ secrets.SQL_PASSWORD }}" -e "SHOW PROCESSLIST;" || exit 1
+          echo "Usando usuário: ${{ env.sql_username }}"
+          mysql -h 10.78.10.171 -u "${{ env.sql_username }}" -p"${{ env.sql_password }}" -e "SHOW PROCESSLIST;" || exit 1
