@@ -40,19 +40,16 @@ jobs:
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
 
-    outputs:
-      SQL_USERNAME: ${{ env.SQL_USERNAME }}
-      SQL_PASSWORD: ${{ env.SQL_PASSWORD }}
-
   check_mysql:
     runs-on: self-hosted
     needs: authn-jwt
 
+    env:
+      SQL_USERNAME: ${{ jobs.authn-jwt.steps[1].env.SQL_USERNAME }}
+      SQL_PASSWORD: ${{ jobs.authn-jwt.steps[1].env.SQL_PASSWORD }}
+
     steps:
       - name: Check MySQL Connection
-        env:
-          SQL_USERNAME: ${{ needs.authn-jwt.outputs.SQL_USERNAME }}
-          SQL_PASSWORD: ${{ needs.authn-jwt.outputs.SQL_PASSWORD }}
         run: |
           echo "Verificando conexão com o banco de dados..."
           echo "Usando usuário: $SQL_USERNAME"
