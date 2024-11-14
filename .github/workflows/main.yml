@@ -17,18 +17,29 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Use CyberArk Conjur Secret Fetcher Action w/ GitHub JWT
+        id: conjur-secrets
         uses: ./
         with:
           url: https://latamlab.secretsmgr.cyberark.cloud/api
           account: conjur
           authn_id: github
           secrets: data/vault/dev-demo-cred/appuser_db/username|sql_username;data/vault/dev-demo-cred/appuser_db/password|sql_password
+          
+      - name: Exibir SQL_USERNAME e SQL_PASSWORD
+        run: |
+          echo "SQL_USERNAME=$SQL_USERNAME"
+          echo "SQL_PASSWORD=$SQL_PASSWORD"
+        env:
+          SQL_USERNAME: ${{ env.SQL_USERNAME }}
+          SQL_PASSWORD: ${{ env.SQL_PASSWORD }}
+          
       - name: Check SQL_USERNAME Outside Docker Container for Secret Masking
         run: printenv SQL_USERNAME | sed 's/./& /g'
       - name: Check SQL_PASSWORD Outside Docker Container for Secret Masking
         run: printenv SQL_PASSWORD | sed 's/./& /g'
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
+
     outputs:
       SQL_USERNAME: ${{ env.SQL_USERNAME }}
       SQL_PASSWORD: ${{ env.SQL_PASSWORD }}
@@ -44,4 +55,5 @@ jobs:
           SQL_PASSWORD: ${{ needs.authn-jwt.outputs.SQL_PASSWORD }}
         run: |
           echo "Verificando conexão com o banco de dados..."
+          echo "Usando usuário: $SQL_USERNAME"
           mysql -h 10.78.10.171 -u "$SQL_USERNAME" -p"$SQL_PASSWORD" -e "SELECT 1;" || exit 1
