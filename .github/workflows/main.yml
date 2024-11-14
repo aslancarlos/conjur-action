@@ -30,6 +30,22 @@ jobs:
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
 
+  show-jwt-claims:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checar o código
+        uses: actions/checkout@v2
+
+      - name: Obter e decodificar o JWT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Obtendo o JWT..."
+          JWT=$(curl -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com)
+          echo "JWT Bruto: $JWT"
+          echo $JWT | cut -d "." -f2 | base64 -d | jq .    
+
 
     
 
