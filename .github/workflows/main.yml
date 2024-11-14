@@ -30,7 +30,7 @@ jobs:
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
 
- check_mysql:
+  check_mysql:
     runs-on: self-hosted
     needs: authn-jwt
 
