@@ -23,8 +23,8 @@ jobs:
       contents: 'read'
 
     outputs:
-      sql_username: ${{ steps.conjur-secrets.outputs.sql_username }}
-      sql_password: ${{ steps.conjur-secrets.outputs.sql_password }}
+      sql_username: ${{ secrets.sql_username }}
+      sql_password: ${{ secrets.sql_password }}
 
     steps:
       - uses: actions/checkout@v1
@@ -43,6 +43,9 @@ jobs:
           echo "sql_username=${{ secrets.sql_username }}" >> $GITHUB_ENV
           echo "sql_password=${{ secrets.sql_password }}" >> $GITHUB_ENV
 
+      - name: Print GITHUB_ENV Content in authn-jwt
+        run: cat $GITHUB_ENV  # Imprime o conteúdo do GITHUB_ENV para depuração
+
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
 
@@ -51,6 +54,9 @@ jobs:
     needs: authn-jwt
 
     steps:
+      - name: Print GITHUB_ENV Content in check_mysql
+        run: cat $GITHUB_ENV  # Imprime o conteúdo do GITHUB_ENV para depuração
+
       - name: Check MySQL Connection
         run: |
           echo "Verificando conexão com o banco de dados..."
