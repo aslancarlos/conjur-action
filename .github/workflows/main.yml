@@ -29,6 +29,9 @@ jobs:
         run: printenv SQL_PASSWORD | sed 's/./& /g'
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
+    outputs:
+      SQL_USERNAME: ${{ env.SQL_USERNAME }}
+      SQL_PASSWORD: ${{ env.SQL_PASSWORD }}
 
   check_mysql:
     runs-on: self-hosted
