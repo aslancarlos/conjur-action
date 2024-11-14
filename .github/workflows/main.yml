@@ -36,18 +36,21 @@ jobs:
           url: https://latamlab.secretsmgr.cyberark.cloud/api
           account: conjur
           authn_id: github
-          secrets: data/vault/dev-demo-cred/appuser_db/username|sql_username;data/vault/dev-demo-cred/appuser_db/password|sql_password
+          secrets: data/vault/dev-demo-cred/appuser_db/username|SQL_USERNAME;data/vault/dev-demo-cred/appuser_db/password|SQL_PASSWORD
           
-      - name: Set sql_username and sql_password as Outputs
+      - name: Set SQL_USERNAME and SQL_PASSWORD as Outputs
         id: set_outputs
         run: |
-          echo "::set-output name=sql_username::${{ secrets.sql_username }}"
-          echo "::set-output name=sql_password::${{ secrets.sql_password }}"
+          echo "::set-output name=sql_username::${{ env.SQL_USERNAME }}"
+          echo "::set-output name=sql_password::${{ env.SQL_PASSWORD }}"
+        env:
+          SQL_USERNAME: ${{ secrets.sql_username }}
+          SQL_PASSWORD: ${{ secrets.sql_password }}
 
       - name: Print Output Variables in authn-jwt
         run: |
-          echo "sql_username=${{ secrets.sql_username }}"
-          echo "sql_password=${{ secrets.sql_password }}"
+          echo "SQL_USERNAME=${{ env.SQL_USERNAME }}"
+          echo "SQL_PASSWORD=${{ env.SQL_PASSWORD }}"
 
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
