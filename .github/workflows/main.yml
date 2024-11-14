@@ -23,8 +23,8 @@ jobs:
       contents: 'read'
 
     outputs:
-      sql_username: ${{ secrets.sql_username }}
-      sql_password: ${{ secrets.sql_password }}
+      sql_username: ${{ steps.set_outputs.outputs.sql_username }}
+      sql_password: ${{ steps.set_outputs.outputs.sql_password }}
 
     steps:
       - uses: actions/checkout@v1
