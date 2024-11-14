@@ -1,6 +1,14 @@
 name: conjur-action
 
 on:
+  workflow_call:
+    secrets:
+      SQL_USERNAME:
+        description: 'CONJUR SECRET SQL USERNAME'
+        required: true
+      SQL_PASSWORD:
+        description: 'CONJUR SECRET SQL PASSWORD '
+        required: true
   push:
     branches:
       - master
@@ -25,16 +33,6 @@ jobs:
           authn_id: github
           secrets: data/vault/dev-demo-cred/appuser_db/username|SQL_USERNAME;data/vault/dev-demo-cred/appuser_db/password|SQL_PASSWORD
           
-      - name: Verificar SQL_USERNAME e SQL_PASSWORD
-        run: |
-          echo "SQL_USERNAME: $SQL_USERNAME"
-          echo "SQL_PASSWORD: [REDACTED]"
-
-      - name: Salvar SQL_USERNAME e SQL_PASSWORD no arquivo de ambiente
-        run: |
-          echo "SQL_USERNAME=$SQL_USERNAME" >> $GITHUB_ENV
-          echo "SQL_PASSWORD=$SQL_PASSWORD" >> $GITHUB_ENV
-
       - name: Check SQL_USERNAME Outside Docker Container for Secret Masking
         run: printenv SQL_USERNAME | sed 's/./& /g'
       - name: Check SQL_PASSWORD Outside Docker Container for Secret Masking
@@ -48,10 +46,7 @@ jobs:
 
     steps:
       - name: Check MySQL Connection
-        env:
-          SQL_USERNAME: ${{ env.SQL_USERNAME }}
-          SQL_PASSWORD: ${{ env.SQL_PASSWORD }}
         run: |
           echo "Verificando conexão com o banco de dados..."
-          echo "Usando usuário: $SQL_USERNAME"
-          mysql -h 10.78.10.171 -u "$SQL_USERNAME" -p"$SQL_PASSWORD" -e "SELECT 1;" || exit 1
+          echo "Usando usuário: ${{ secrets.SQL_USERNAME }}"
+          mysql -h 10.78.10.171 -u "${{ secrets.SQL_USERNAME }}" -p"${{ secrets.SQL_PASSWORD }}" -e "SHOW PROCESSLIST;" || exit 1
