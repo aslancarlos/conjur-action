@@ -3,10 +3,10 @@ name: conjur-action
 on:
   workflow_call:
     secrets:
-      SQL_USERNAME:
+      sql_username:
         description: 'CONJUR SECRET SQL USERNAME'
         required: true
-      SQL_PASSWORD:
+      sql_password:
         description: 'CONJUR SECRET SQL PASSWORD'
         required: true
   push:
@@ -22,10 +22,6 @@ jobs:
       id-token: 'write'
       contents: 'read'
 
-    outputs:
-      sql_username: ${{ steps.set_sql_username.outputs.sql_username }}
-      sql_password: ${{ steps.set_sql_password.outputs.sql_password }}
-
     steps:
       - uses: actions/checkout@v1
       
@@ -33,30 +29,11 @@ jobs:
         id: conjur-secrets
         uses: ./  # Repositório local ou ação personalizada
         with:
-          url: https://latamlab.secretsmgr.cyberark.cloud/api
-          account: conjur
-          authn_id: github
-          secrets: data/vault/dev-demo-cred/appuser_db/username|SQL_USERNAME;data/vault/dev-demo-cred/appuser_db/password|SQL_PASSWORD
-          
-      - name: Debug - Print SQL_USERNAME and SQL_PASSWORD
-        run: |
-          echo "SQL_USERNAME: $SQL_USERNAME"
-          echo "SQL_PASSWORD: $SQL_PASSWORD"
-        
-      - name: Set SQL_USERNAME and SQL_PASSWORD as Outputs
-        id: set_sql_username
-        run: |
-          echo "sql_username=${SQL_USERNAME}" >> $GITHUB_ENV
-        env:
-          SQL_USERNAME: $SQL_USERNAME
-
-      - name: Set SQL_PASSWORD as Output
-        id: set_sql_password
-        run: |
-          echo "sql_password=${SQL_PASSWORD}" >> $GITHUB_ENV
-        env:
-          SQL_PASSWORD: $SQL_PASSWORD
-
+          url: ${{ secrets.CONJUR_URL }}
+          account: ${{ secrets.CONJUR_ACCOUNT }}
+          authn_id:  ${{ secrets.CONJUR_SERVICE_ID }}
+          secrets: data/vault/dev-demo-cred/appuser_db/username|sql_username;data/vault/dev-demo-cred/appuser_db/password|sql_password
+     
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
 
@@ -65,13 +42,8 @@ jobs:
     needs: authn-jwt  # Depende do job authn-jwt para ter acesso aos outputs
 
     steps:
-      - name: Debug Outputs from authn-jwt
-        run: |
-          echo "SQL_USERNAME Output: ${{ needs.authn-jwt.outputs.sql_username }}"
-          echo "SQL_PASSWORD Output: ${{ needs.authn-jwt.outputs.sql_password }}"
-
       - name: Check MySQL Connection
         run: |
           echo "Verificando conexão com o banco de dados..."
-          echo "Usando usuário: ${{ needs.authn-jwt.outputs.sql_username }}"
-          mysql -h 10.78.10.171 -u "${{ needs.authn-jwt.outputs.sql_username }}" -p"${{ needs.authn-jwt.outputs.sql_password }}" -e "SHOW PROCESSLIST;" || exit 1
+          echo "Usando usuário: ${{ secrets.sql_username }}"
+          mysql -h 10.78.10.171 -u "${{ secrets.sql_username }}"" -p"${{ secrets.sql_password }}"" -e "SHOW PROCESSLIST;" || exit 1
