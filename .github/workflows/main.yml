@@ -3,10 +3,10 @@ name: conjur-action
 on:
   workflow_call:
     secrets:
-      sql_username:
+      SQL_USERNAME:
         description: 'CONJUR SECRET SQL USERNAME'
         required: true
-      sql_password:
+      SQL_PASSWORD:
         description: 'CONJUR SECRET SQL PASSWORD'
         required: true
   push:
@@ -22,11 +22,7 @@ jobs:
       id-token: 'write'
       contents: 'read'
 
-    outputs:
-      sql_username: ${{ steps.set_outputs.outputs.sql_username }}
-      sql_password: ${{ steps.set_outputs.outputs.sql_password }}
-
-    steps:
+     steps:
       - uses: actions/checkout@v1
       
       - name: Use CyberArk Conjur Secret Fetcher Action w/ GitHub JWT
@@ -38,20 +34,6 @@ jobs:
           authn_id: github
           secrets: data/vault/dev-demo-cred/appuser_db/username|SQL_USERNAME;data/vault/dev-demo-cred/appuser_db/password|SQL_PASSWORD
           
-      - name: Set SQL_USERNAME and SQL_PASSWORD as Outputs
-        id: set_outputs
-        run: |
-          echo "::set-output name=sql_username::${{ env.SQL_USERNAME }}"
-          echo "::set-output name=sql_password::${{ env.SQL_PASSWORD }}"
-        env:
-          SQL_USERNAME: ${{ secrets.sql_username }}
-          SQL_PASSWORD: ${{ secrets.sql_password }}
-
-      - name: Print Output Variables in authn-jwt
-        run: |
-          echo "SQL_USERNAME=${{ env.SQL_USERNAME }}"
-          echo "SQL_PASSWORD=${{ env.SQL_PASSWORD }}"
-
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
 
@@ -62,11 +44,11 @@ jobs:
     steps:
       - name: Print Output Variables from authn-jwt in check_mysql
         run: |
-          echo "SQL_USERNAME: ${{ needs.authn-jwt.outputs.sql_username }}"
-          echo "SQL_PASSWORD: ${{ needs.authn-jwt.outputs.sql_password }}"
+          echo "SQL_USERNAME: ${{ secrets.SQL_USERNAME }}"
+          echo "SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}"
 
       - name: Check MySQL Connection
         run: |
           echo "Verificando conexão com o banco de dados..."
-          echo "Usando usuário: ${{ needs.authn-jwt.outputs.sql_username }}"
-          mysql -h 10.78.10.171 -u "${{ needs.authn-jwt.outputs.sql_username }}" -p"${{ needs.authn-jwt.outputs.sql_password }}" -e "SHOW PROCESSLIST;" || exit 1
+          echo "Usando usuário: ${{ secrets.SQL_USERNAME }}"
+          mysql -h 10.78.10.171 -u "${{ secrets.SQL_USERNAME }}" -p"${{ secrets.SQL_PASSWORD }}" -e "SHOW PROCESSLIST;" || exit 1
