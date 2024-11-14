@@ -39,12 +39,15 @@ jobs:
           secrets: data/vault/dev-demo-cred/appuser_db/username|sql_username;data/vault/dev-demo-cred/appuser_db/password|sql_password
           
       - name: Set sql_username and sql_password as Outputs
+        id: set_outputs
         run: |
-          echo "sql_username=${{ secrets.sql_username }}" >> $GITHUB_ENV
-          echo "sql_password=${{ secrets.sql_password }}" >> $GITHUB_ENV
+          echo "::set-output name=sql_username::${{ secrets.sql_username }}"
+          echo "::set-output name=sql_password::${{ secrets.sql_password }}"
 
-      - name: Print GITHUB_ENV Content in authn-jwt
-        run: cat $GITHUB_ENV  # Imprime o conteúdo do GITHUB_ENV para depuração
+      - name: Print Output Variables in authn-jwt
+        run: |
+          echo "sql_username=${{ secrets.sql_username }}"
+          echo "sql_password=${{ secrets.sql_password }}"
 
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
@@ -54,8 +57,10 @@ jobs:
     needs: authn-jwt
 
     steps:
-      - name: Print GITHUB_ENV Content in check_mysql
-        run: cat $GITHUB_ENV  # Imprime o conteúdo do GITHUB_ENV para depuração
+      - name: Print Output Variables from authn-jwt in check_mysql
+        run: |
+          echo "SQL_USERNAME: ${{ needs.authn-jwt.outputs.sql_username }}"
+          echo "SQL_PASSWORD: ${{ needs.authn-jwt.outputs.sql_password }}"
 
       - name: Check MySQL Connection
         run: |
