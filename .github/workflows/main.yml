@@ -29,3 +29,16 @@ jobs:
         run: printenv SQL_PASSWORD | sed 's/./& /g'
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
+
+ check_mysql:
+    runs-on: self-hosted
+    needs: authn-jwt
+
+    steps:
+      - name: Check MySQL Connection
+        env:
+          SQL_USERNAME: ${{ needs.authn-jwt.outputs.SQL_USERNAME }}
+          SQL_PASSWORD: ${{ needs.authn-jwt.outputs.SQL_PASSWORD }}
+        run: |
+          echo "Verificando conexão com o banco de dados..."
+          mysql -h 10.78.10.171 -u "$SQL_USERNAME" -p"$SQL_PASSWORD" -e "SELECT 1;" || exit 1
