@@ -37,14 +37,13 @@ jobs:
       - name: Checar o código
         uses: actions/checkout@v2
 
-      - name: Obter e decodificar o JWT
+      - name: Obter o JWT em Base64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Obtendo o JWT..."
+          echo "Obtendo o JWT em Base64..."
           JWT=$(curl -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com)
-          echo "JWT Bruto: $JWT"
-          echo $JWT | cut -d "." -f2 | base64 -d | jq .    
+          echo "JWT em Base64: $(echo -n $JWT | base64)" 
 
 
     
