@@ -45,5 +45,5 @@ jobs:
       - name: Check MySQL Connection
         run: |
           echo "Verificando conexão com o banco de dados..."
-          echo "Usando usuário: ${{ secrets.sql_username }}"
-          mysql -h 10.78.10.171 -u "${{ secrets.sql_username }}"" -p"${{ secrets.sql_password }}"" -e "SHOW PROCESSLIST;" || exit 1
+          echo "Usando usuário: ${{ jobs.authn_jwt.secrets.sql_username }}"
+          mysql -h 10.78.10.171 -u "${{ jobs.authn_jwt.secrets.sql_username }}"" -p"${{ jobs.authn_jwt.secrets.sql_password }}"" -e "SHOW PROCESSLIST;" || exit 1
