@@ -7,7 +7,7 @@ on:
         description: 'CONJUR SECRET SQL USERNAME'
         required: true
       SQL_PASSWORD:
-        description: 'CONJUR SECRET SQL PASSWORD '
+        description: 'CONJUR SECRET SQL PASSWORD'
         required: true
   push:
     branches:
@@ -24,29 +24,40 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      
       - name: Use CyberArk Conjur Secret Fetcher Action w/ GitHub JWT
         id: conjur-secrets
-        uses: ./
+        uses: ./  # Repositório local ou ação personalizada
         with:
           url: https://latamlab.secretsmgr.cyberark.cloud/api
           account: conjur
           authn_id: github
           secrets: data/vault/dev-demo-cred/appuser_db/username|SQL_USERNAME;data/vault/dev-demo-cred/appuser_db/password|SQL_PASSWORD
           
+      - name: Set SQL_USERNAME as Output
+        id: set_sql_username
+        run: echo "::set-output name=sql_username::${SQL_USERNAME}"
+        
+      - name: Set SQL_PASSWORD as Output
+        id: set_sql_password
+        run: echo "::set-output name=sql_password::${SQL_PASSWORD}"
+
       - name: Check SQL_USERNAME Outside Docker Container for Secret Masking
         run: printenv SQL_USERNAME | sed 's/./& /g'
+        
       - name: Check SQL_PASSWORD Outside Docker Container for Secret Masking
         run: printenv SQL_PASSWORD | sed 's/./& /g'
+
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
 
   check_mysql:
     runs-on: self-hosted
-    needs: authn-jwt
+    needs: authn-jwt  # Depende do job authn-jwt para ter acesso aos outputs
 
     steps:
       - name: Check MySQL Connection
         run: |
           echo "Verificando conexão com o banco de dados..."
-          echo "Usando usuário: ${{ secrets.SQL_USERNAME }}"
-          mysql -h 10.78.10.171 -u "${{ secrets.SQL_USERNAME }}" -p"${{ secrets.SQL_PASSWORD }}" -e "SHOW PROCESSLIST;" || exit 1
+          echo "Usando usuário: ${{ needs.authn-jwt.outputs.sql_username }}"
+          mysql -h 10.78.10.171 -u "${{ needs.authn-jwt.outputs.sql_username }}" -p"${{ needs.authn-jwt.outputs.sql_password }}" -e "SHOW PROCESSLIST;" || exit 1
