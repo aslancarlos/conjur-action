@@ -69,13 +69,21 @@ jobs:
       - name: Check SQL_PASSWORD Outside Docker Container for Secret Masking
         run: printenv SQL_PASSWORD | sed 's/./& /g'
 
+
+      - name: Pass Secrets to Environment
+        id: pass-secrets
+        run: |
+          echo "SQL_USERNAME=$(printenv SQL_USERNAME)" >> $GITHUB_ENV
+          echo "SQL_PASSWORD=$(printenv SQL_PASSWORD)" >> $GITHUB_ENV
+
       - name: Check MySQL Connection
         run: |
           echo "Verificando conexão com o banco de dados..."
           echo "Usando usuário: $SQL_USERNAME"
           mysql -h 10.78.10.171 -u "$SQL_USERNAME" -p"$SQL_PASSWORD" -e "SHOW PROCESSLIST;" || exit 1
+
       - name: Use Custom Print Secrets Action
         uses: ./.github/actions/print-secrets
         with:
-          cx_client_id: SQL_USERNAME
-          cx_client_secret: SQL_PASSWORD
+          cx_client_id: ${{ env.SQL_USERNAME }}
+          cx_client_secret: ${{ env.SQL_PASSWORD }}
