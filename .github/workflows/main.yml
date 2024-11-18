@@ -80,5 +80,5 @@ jobs:
       - name: Use Custom Print Secrets Action
         uses: ./.github/actions/print-secrets
         with:
-          cx_client_id: ${{ secrets.SQL_USERNAME}}
-          cx_client_secret: ${{ secrets.SQL_PASSWORD }}
+          cx_client_id: SQL_USERNAME
+          cx_client_secret: SQL_PASSWORD
