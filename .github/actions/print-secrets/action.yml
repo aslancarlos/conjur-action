@@ -1,0 +1,16 @@
+name: "Print CX Secrets"
+description: "Receives secrets and prints them"
+inputs:
+  cx_client_id:
+    description: "CX Client ID"
+    required: true
+  cx_client_secret:
+    description: "CX Client Secret"
+    required: true
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.cx_client_id }}
+    - ${{ inputs.cx_client_secret }}
+

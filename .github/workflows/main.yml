@@ -74,3 +74,11 @@ jobs:
           echo "Verificando conexão com o banco de dados..."
           echo "Usando usuário: $SQL_USERNAME"
           mysql -h 10.78.10.171 -u "$SQL_USERNAME" -p"$SQL_PASSWORD" -e "SHOW PROCESSLIST;" || exit 1
+
+
+
+      - name: Use Custom Print Secrets Action
+        uses: ./.github/actions/print-secrets
+        with:
+          cx_client_id: ${{ secrets.SQL_USERNAME}}
+          cx_client_secret: ${{ secrets.SQL_PASSWORD }}
