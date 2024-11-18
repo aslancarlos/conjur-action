@@ -87,3 +87,9 @@ jobs:
         with:
           cx_client_id: ${{ env.SQL_USERNAME }}
           cx_client_secret: ${{ env.SQL_PASSWORD }}
+
+      - name: Display CX Secrets Output File
+        run: |
+        echo "Conteúdo do arquivo cx_secrets_output.txt:"
+        cat /github/workspace/cx_secrets_output.txt
+
