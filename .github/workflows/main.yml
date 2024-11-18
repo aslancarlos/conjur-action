@@ -90,6 +90,6 @@ jobs:
 
       - name: Display CX Secrets Output File
         run: |
-        echo "Conteúdo do arquivo cx_secrets_output.txt:"
-        cat /github/workspace/cx_secrets_output.txt
+          echo "Conteúdo do arquivo cx_secrets_output.txt:"
+          cat /github/workspace/cx_secrets_output.txt
 
