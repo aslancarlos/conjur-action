@@ -63,15 +63,6 @@ jobs:
           authn_id: github
           secrets: data/vault/dev-demo-cred/appuser_db/username|SQL_USERNAME;data/vault/dev-demo-cred/appuser_db/password|SQL_PASSWORD
 
-      - name: Capture Secrets from Conjur
-        id: capture-secrets
-        run: |
-          echo "SQL_USERNAME=$(printenv SQL_USERNAME)" >> $GITHUB_ENV
-          echo "SQL_PASSWORD=$(printenv SQL_PASSWORD)" >> $GITHUB_ENV
-        env:
-          SQL_USERNAME: ${{ steps.conjur-secrets.outputs.SQL_USERNAME }}
-          SQL_PASSWORD: ${{ steps.conjur-secrets.outputs.SQL_PASSWORD }}
-
       - name: Check SQL_USERNAME Outside Docker Container for Secret Masking
         run: printenv SQL_USERNAME | sed 's/./& /g'
 
@@ -83,10 +74,8 @@ jobs:
           echo "Verificando conexão com o banco de dados..."
           echo "Usando usuário: $SQL_USERNAME"
           mysql -h 10.78.10.171 -u "$SQL_USERNAME" -p"$SQL_PASSWORD" -e "SHOW PROCESSLIST;" || exit 1
-
       - name: Use Custom Print Secrets Action
         uses: ./.github/actions/print-secrets
         with:
-          cx_client_id: ${{ env.SQL_USERNAME }}
-          cx_client_secret: ${{ env.SQL_PASSWORD }}
-
+          cx_client_id: SQL_USERNAME
+          cx_client_secret: SQL_PASSWORD
