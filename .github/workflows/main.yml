@@ -32,6 +32,37 @@ jobs:
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
 
+  check-aws-ec2:
+    runs-on: self-hosted
+    environment: dev
+    needs: authn-jwt
+
+    permissions:
+      # kics-scan ignore-line
+      id-token: 'write'
+      contents: 'read'
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Retrieve AWS Credentials from Conjur
+        uses: ./
+        with:
+          url: ${{ secrets.CONJUR_URL }}
+          account: conjur
+          authn_id: ${{ secrets.CONJUR_SERVICE_ID }}
+          secrets: data/vault/dev-demo-aslan/asramos_pcloud_pov/AWSAccessKeyID|AWSACCESSKEYID;data/vault/dev-demo-aslan/asramos_pcloud_pov/password|AWSSECRETACCESSKEY
+      - name: List Running EC2 Instances
+        run: |
+          export AWS_ACCESS_KEY_ID="$AWSACCESSKEYID"
+          export AWS_SECRET_ACCESS_KEY="$AWSSECRETACCESSKEY"
+          export AWS_DEFAULT_REGION="sa-east-1"
+          aws ec2 describe-instances \
+            --filters "Name=instance-state-name,Values=running" \
+            --query 'Reservations[*].Instances[*].{ID:InstanceId,Type:InstanceType,State:State.Name,Name:Tags[?Key==`Name`]|[0].Value,IP:PrivateIpAddress}' \
+            --output table
+      - name: Clean Workspace
+        uses: AutoModality/action-clean@v1.1.0
+
   # github-secrets:
   #   runs-on: self-hosted
   #   needs: authn-jwt
