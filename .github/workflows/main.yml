@@ -9,7 +9,8 @@ on:
 jobs:
   authn-jwt:
     runs-on: self-hosted
-    
+    environment: dev
+
     permissions:
       # kics-scan ignore-line
       id-token: 'write'
@@ -21,7 +22,7 @@ jobs:
         uses: ./
         with:
           url: ${{ secrets.CONJUR_URL }}
-          account: cyberarkdemo
+          account: conjur
           authn_id: ${{ secrets.CONJUR_SERVICE_ID }}
           secrets: data/vault/dev-demo-aslan/asramos_pcloud_pov/username|sql_username;data/vault/dev-demo-aslan/asramos_pcloud_pov/password|sql_password
       - name: Check SQL_USERNAME Outside Docker Container for Secret Masking
