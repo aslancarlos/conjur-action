@@ -24,11 +24,20 @@ jobs:
           url: ${{ secrets.CONJUR_URL }}
           account: conjur
           authn_id: ${{ secrets.CONJUR_SERVICE_ID }}
-          secrets: data/vault/dev-demo-aslan/asramos_pcloud_pov/username|sql_username;data/vault/dev-demo-aslan/asramos_pcloud_pov/password|sql_password
-      - name: Check SQL_USERNAME Outside Docker Container for Secret Masking
-        run: printenv SQL_USERNAME | sed 's/./& /g'
-      - name: Check SQL_PASSWORD Outside Docker Container for Secret Masking
-        run: printenv SQL_PASSWORD | sed 's/./& /g'
+          secrets: data/vault/dev-demo-aslan/asramos_pcloud_pov/AWSAccessKeyID|AWSACCESSKEYID;data/vault/dev-demo-aslan/asramos_pcloud_pov/password|AWSSECRETACCESSKEY
+      - name: Check AWSACCESSKEYID Outside Docker Container for Secret Masking
+        run: printenv AWSACCESSKEYID | sed 's/./& /g'
+      - name: Check AWSSECRETACCESSKEY Outside Docker Container for Secret Masking
+        run: printenv AWSSECRETACCESSKEY | sed 's/./& /g'
+      - name: List Running EC2 Instances
+        run: |
+          export AWS_ACCESS_KEY_ID="$AWSACCESSKEYID"
+          export AWS_SECRET_ACCESS_KEY="$AWSSECRETACCESSKEY"
+          export AWS_DEFAULT_REGION="sa-east-1"
+          aws ec2 describe-instances \
+            --filters "Name=instance-state-name,Values=running" \
+            --query 'Reservations[*].Instances[*].{ID:InstanceId,Type:InstanceType,State:State.Name,Name:Tags[?Key==`Name`]|[0].Value,IP:PrivateIpAddress}' \
+            --output table
       - name: Clean Workspace
         uses: AutoModality/action-clean@v1.1.0
 
