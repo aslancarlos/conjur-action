@@ -147,6 +147,9 @@ array_secrets() {
 }
 
 set_secrets() {
+  if [[ -n "${GITHUB_ENV}" ]] && [[ ! -w "${GITHUB_ENV}" ]]; then
+    chmod o+w "${GITHUB_ENV}" 2>/dev/null || echo "::warning::GITHUB_ENV is not writable by the current user. Environment variables may not be available in subsequent steps. Consider running the self-hosted runner as the same user as the Docker container (UID 1001)."
+  fi
   if [[ ${SECRETS[@]} ]]; then
     telemetry_header
     for secret in "${SECRETS[@]}"; do
