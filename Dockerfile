@@ -16,8 +16,6 @@ RUN chown -R 1001:0 /conjur-action \
 	&& chmod ug+x /conjur-action/entrypoint.sh \
 	&& chmod a-w /conjur-action/entrypoint.sh /conjur-action/CHANGELOG.md
 
-USER 1001
-
 WORKDIR /conjur-action
 
 ENTRYPOINT ["/conjur-action/entrypoint.sh"]
