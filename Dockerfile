@@ -18,4 +18,6 @@ RUN chown -R 1001:0 /conjur-action \
 
 WORKDIR /conjur-action
 
+USER 1001
+
 ENTRYPOINT ["/conjur-action/entrypoint.sh"]
